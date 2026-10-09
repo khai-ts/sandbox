@@ -1,0 +1,10 @@
+# Paths that change what real people pay or earn, or who can access what.
+# A human must approve every change here, including changes written by Claude Code.
+# Add co-op board members here as they join.
+
+/packages/pricing/        @khai-ts
+/docs/GOVERNANCE.md       @khai-ts
+/docs/adr/                @khai-ts
+/.github/                 @khai-ts
+/CLAUDE.md                @khai-ts
+/.claude/                 @khai-ts

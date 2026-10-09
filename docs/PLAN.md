@@ -76,10 +76,11 @@ toward cheaper rails (bank pay, local instant payment) with a small discount.
 Set the founder share as a **fixed, capped income written into the co-op's bylaws**, not
 as equity or a percentage that grows forever:
 
-- **Steward stipend**: e.g. 0.5% of network GMV, **capped at a fixed annual amount**
-  (for example 3× the median household income in your region, indexed to inflation).
-- **Build-up period**: before the network covers the stipend, it accrues as a
-  deferred obligation paid back from future surplus, so you aren't working for free.
+- **Steward stipend**: 0.5% of network GMV, **capped at 3× median monthly household
+  income** for Kuala Lumpur (DOSM 2024: RM10,805, so the cap is RM32,415/month).
+- **Paid only once sustainable**: 3 consecutive months of revenue covering costs plus a
+  full reserve. **Nothing accrues** before then. See `docs/GOVERNANCE.md` and
+  `packages/pricing/src/stipend.ts`.
 - **Above the cap**, everything goes to fee reductions and patronage dividends to
   drivers, shops and customers, in proportion to their use.
 - **Steward seat**: a guaranteed board seat (not control) for the founder while they
@@ -87,9 +88,8 @@ as equity or a percentage that grows forever:
   and the fee caps from being changed by a future takeover.
 - Publish the stipend in a public dashboard. Visible fairness is part of the marketing.
 
-Rough scale check: 1M orders/year × $0.99 ≈ $990k network fee revenue. At 0.5% of an
-average $30 order, the stipend is $150k before the cap. A single mid-sized city at
-maturity can sustain this.
+Rough scale check: the stipend reaches its cap at about RM6.5M GMV/month, roughly 200k
+orders/month at RM32. Below that, it is 0.5% of GMV.
 
 ---
 
@@ -268,14 +268,57 @@ distance/time pricing instead).
 
 ---
 
-## 11. Decisions needed from you
+## 11. Decisions (2026-10-09)
 
-1. **Pilot city / country.** This drives legal entity, payment rails and insurance.
-2. **Build vs fork.** Contribute to CoopCycle's stack, or build fresh in TypeScript (recommended here because it suits Claude Code maintenance and mobile-first UX)?
-3. **Crypto:** none, optional payouts only (recommended), or deeper?
-4. **Solo or co-founders.** A local operations/community partner in the pilot city is strongly recommended. Software is the easy half.
-5. **Stipend cap number** and the build-up deferred amount.
+| Decision | Choice |
+|---|---|
+| Pilot | **Klang Valley, Malaysia** |
+| Build vs fork | **Build fresh** in TypeScript (ADR 0001) |
+| Crypto | **None** (ADR 0004) |
+| Team | **Solo founder** for now; founder gives up majority ownership in exchange for the entrenched stipend (`docs/GOVERNANCE.md`) |
+| Stipend | **Max 3 × median income, paid only once sustainable, no accrual** |
 
-Once these are answered, the next step is Phase 0: scaffold the monorepo with
-`CLAUDE.md`, CI, CODEOWNERS guardrails and the `packages/pricing` module (with tests)
-as the first real code, since pricing is the core of the promise.
+---
+
+## 12. Klang Valley specifics
+
+### Market
+- Incumbents: Grab, foodpanda, ShopeeFood. Shop commissions are typically around 25–30%, which is the main pitch to shops.
+- Most riders use **motorcycles**. Rain is a key factor: plan for weather pauses and rider safety.
+- Start dense: one area such as SS15/Subang Jaya, Petaling Jaya, Bangsar/Brickfields or Cheras, with many independent kedai makan, mamak and cafés.
+
+### Product localisation
+- Languages: **Bahasa Malaysia, English, Chinese, Tamil** from day one.
+- **Halal**: show "JAKIM halal certified" only with a verified certificate. Self-declared labels (e.g. "no pork, no lard") stay visually distinct. Add halal and dietary filters.
+- Payments: **DuitNow QR and FPX first** (cheapest), then e-wallets (Touch 'n Go, GrabPay, Boost) and cards. ADR 0003 covers payment provider selection.
+- Ramadan: support iftar-time pre-orders and bazaar Ramadan stalls. This is a strong launch moment for small sellers.
+
+### Pricing (pilot defaults in `packages/pricing/src/config.ts`, subject to member vote)
+- Network fee **RM0.99** per order.
+- Delivery: RM3.00 base + RM0.70/km + RM0.10/min, minimum RM5.00. 100% to the rider, less statutory SOCSO.
+- Example: a RM30 order, 4 km/15 min, RM2 tip, DuitNow QR. The shop gets RM30.00, the rider gets RM9.30 (RM0.09 to their SOCSO account), the network gets RM0.99, and the customer pays about RM40.50.
+
+### Legal and regulatory (Malaysia; verify every item with counsel)
+- [ ] **Koperasi registration** with Suruhanjaya Koperasi Malaysia (Co-operative Societies Act 1993): check minimum founding members and whether a koperasi can operate the platform directly or via a subsidiary Sdn Bhd.
+- [ ] **Gig Workers Act 2025 (Act 872)**: written service agreements, rate transparency, disputes via the Industrial Relations Department and Gig Workers Tribunal. **SOCSO**: register riders under the self-employment scheme and deduct 1.25% per job (Act 789). Confirm exact obligations.
+- [ ] **Payments**: use a licensed payment provider with split payouts. Don't hold funds (Bank Negara Malaysia).
+- [ ] **PDPA 2010 (2024 amendments)**: data protection officer, breach notification, retention limits on rider location.
+- [ ] **SST**: treatment of network and delivery fees.
+- [ ] **Insurance**: rider personal accident and third-party cover for motorcycles used for delivery. Check APAD / road transport requirements for p-hailing.
+- [ ] **Food**: shops hold their own premises licences (PBT/DBKL/MBPJ etc.) and food handler training. The platform checks but doesn't certify.
+
+---
+
+## 13. Next steps
+
+Phase 0 is underway:
+
+- [x] Monorepo scaffold, `CLAUDE.md`, CI, CODEOWNERS guardrails
+- [x] `packages/pricing`: order quote and steward stipend, with property tests for each promise
+- [x] Governance draft and ADRs 0001–0004
+- [ ] Book a lawyer (koperasi + Gig Workers Act) and a tax adviser (SST)
+- [ ] Get quotes from payment providers (ADR 0003)
+- [ ] Pick the pilot area; get 10 shop and 20 rider letters of intent
+- [ ] `packages/db` schema (shops, menus, orders, riders, payouts) with PostGIS
+- [ ] `apps/api`: order lifecycle using `@fairplate/pricing`
+- [ ] `apps/mobile`: Expo skeleton with the three modes and i18n (BM/EN/ZH/TA)
